@@ -1,0 +1,6 @@
+pymongo
+pandas
+streamlit
+streamlit_option_menu
+google-api-python-client
+mysql-connector-python
