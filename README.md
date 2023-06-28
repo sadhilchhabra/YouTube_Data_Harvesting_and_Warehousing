@@ -55,13 +55,15 @@ The purpose of this project is to create an intuitive Streamlit app that pulls d
 1. Enter a YouTube channel ID in the input field and click the "Extract Data From API" button.
    
 2. The app will retrieve the channel details like  Channel_id, Channel_name Playlist_id, Subscribers, Views, Total_videos, Description and so on.
-   
-3. Now from the sidebar select the Migrate tab.  Now select the channel whose data you want to migrate to the SQL database from the dropdown menu.
-   
-4. Then click the "Migrate Data to SQL" button to migrate the selected channel data to SQL Database.
 
-5. The app will display a success message once the data has been migrated.
+3. Now to upload the data to MongoDB Atlas Database Cluster, click the "Upload data to MongoDB Atlas" button. The app will show a success message after the data is been uploaded successfully.
    
-6. Now from the sidebar select the View tab and browse through the dropdown menu and select the required statement.
+4. After the data gets uploded to MongoDB Atlas, now from the sidebar select the Migrate tab.  Now select the channel whose data you want to migrate to the SQL database from the dropdown menu.
+   
+5. Then click the "Migrate Data to SQL" button to migrate the selected channel data to SQL Database.
+
+6. The app will display a success message once the data has been migrated.
+   
+7. Now from the sidebar select the View tab and browse through the dropdown menu and select the required statement.
     
-7. According to the selected statement the data will be queried from the SQL Database  and will be displayed here on the screen in the streamlit application.
+8. According to the selected statement the data will be queried from the SQL Database  and will be displayed here on the screen in the streamlit application.
