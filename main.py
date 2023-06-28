@@ -171,7 +171,7 @@ def extract_comment(v_id):
 
 # ----------------------------------------------------------------------------------------------------------------
 
-# Here we are extracting our Data form Youtube API
+# Here we are extracting our Data form Youtube API and uploading that data to MongoDB Atlas Database Cluster
 if selected == "Extract":
     st.write("### Enter a YouTube Channel id -")
     cid = st.text_input("Channel id").split(',')
@@ -199,6 +199,8 @@ if selected == "Extract":
             mycoll3.insert_many(comm_details)
             st.success("Data Uploaded Successfully")
 
+
+# Here we are migrating the data to MySQL Database
 if selected == "Migrate":
     st.write("### Data Migration from MongoDB Atlas to MySQL")
 
@@ -277,6 +279,8 @@ if selected == "Migrate":
         except:
             st.error("Error, Data Already Migrated")
 
+
+# Here we are querying the data from MySQL Database
 if selected == "View":
     st.write("## :yellow[Select any question to get Insights]")
     questions = st.selectbox('Questions',
