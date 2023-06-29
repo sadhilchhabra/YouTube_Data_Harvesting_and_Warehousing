@@ -272,17 +272,18 @@ if selected == "Migrate":
 
     if st.button("Migrate Data to MySQL"):
         try:
-            migrate_data_to_channels()
-            migrate_data_to_videos()
-            migrate_data_to_comments()
-            st.success("Data Migration Successful")
+            with st.spinner('Migrating....'):
+                migrate_data_to_channels()
+                migrate_data_to_videos()
+                migrate_data_to_comments()
+                st.success("Data Migration Successful")
         except:
             st.error("Error, Data Already Migrated")
 
 
 # Here we are querying the data from MySQL Database
 if selected == "View":
-    st.write("## :yellow[Select any question to get Insights]")
+    st.write("## :yellow[Select a question to get the Query Results]")
     questions = st.selectbox('Questions',
                              ['- What are the names of all the videos and their corresponding channels?',
                               '- Which channels have the most number of videos, and how many videos do they have?',
