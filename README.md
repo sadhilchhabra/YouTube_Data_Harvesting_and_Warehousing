@@ -2,6 +2,7 @@
 
 The purpose of this project is to create an intuitive Streamlit app that pulls data about a YouTube channel from the Google API, stores it in a MongoDB database, moves it to a SQL data warehouse, and then lets users perform searches for channel details and join tables to view the data.
 #### Link : <a href="https://www.linkedin.com/posts/activity-7080057017985359873-U-32?utm_source=share&utm_medium=member_desktop" target="_blank">LinkedIn Post / Working Model Video</a>
+<br/>
 
 ## Prerequisites
 1. **Python** -- Programming Language
