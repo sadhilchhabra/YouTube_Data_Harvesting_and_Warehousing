@@ -4,6 +4,7 @@ from streamlit_option_menu import option_menu
 import pymongo
 import pandas as pd
 import streamlit as st
+import psycopg2
 
 # -------------------------------This is the configuration page for our Streamlit Application---------------------------
 st.set_page_config(
@@ -23,29 +24,22 @@ with st.sidebar:
                            )
 
 # --------------Connecting with MongoDB Atlas Cluster and Creating a new database named 'youtubeData'---------------
-client = pymongo.MongoClient("your connection id goes here")
+client = pymongo.MongoClient('<Client string>')
 db = client['youtubeData']
 mycoll1 = db["channel_details"]
 mycoll2 = db["video_details"]
 mycoll3 = db["comments_details"]
 
-# -----------------------------------------Connecting with MySQL Workbench Database------------------------------------
+# -----------------------------------------Connecting with PostgreSQL Workbench Database------------------------------------
 
-hostname = "your host name goes here"
-database = "your database name goes here"
-username = "your username goes here"
-pwd = "your password goes here"
 
-mydb = sql.connect(host=hostname,
-                   user=username,
-                   password=pwd,
-                   database=database
-                   )
+mydb = psycopg2.connect("dbname=<DB name> user=postgres password=<Password goes here>")
+
 # If buffered is True , the cursor fetches all rows from the server after an operation is executed.
-cursor1 = mydb.cursor(buffered=True)
+cursor1 = mydb.cursor()
 
 # ----------------------------------------------Connecting with YouTube API------------------------------------------
-youtube = build('youtube', 'v3', developerKey="your api_key goes here")
+youtube = build('youtube', 'v3', developerKey="<Developer Key>")
 
 
 # -------------------Here we are extracting the channel details with the help of YouTube Channel id-------------------
@@ -200,9 +194,9 @@ if selected == "Extract":
             st.success("Data Uploaded Successfully")
 
 
-# Here we are migrating the data to MySQL Database
+# Here we are migrating the data to PostgreSQL Database
 if selected == "Migrate":
-    st.write("### Data Migration from MongoDB Atlas to MySQL")
+    st.write("### Data Migration from MongoDB Atlas to PostgreSQL")
 
     # Here we are extracting the channel details from MongoDB Atlas Cluster
     def youtube_channel_names():
@@ -214,9 +208,55 @@ if selected == "Migrate":
     ch_names = youtube_channel_names()
     user_inp = st.selectbox("Select the channel for data migration :", options=ch_names)
 
+    def create_psql_tables():
+        commands = (
+        """
+
+        CREATE TABLE channels(
+            Channel_id VARCHAR(255),
+            Channel_name VARCHAR(255),
+            Playlist_id VARCHAR(255),
+            Subscribers INT,
+            Views INT,
+            Total_videos INT,
+            Description TEXT,
+            PRIMARY KEY(Channel_id)
+        );
+
+
+        CREATE TABLE videos(
+            Channel_name VARCHAR(255),
+            Channel_id VARCHAR(255),
+            Video_id VARCHAR(255),
+            Title TEXT,
+            Tags TEXT,
+            Thumbnail TEXT,
+            Description TEXT,
+            Published_date TEXT,
+            Duration VARCHAR(255),
+            Views INT,
+            Likes INT,
+            Comments INT,
+            Favorite_count INT,
+            Caption_status TEXT,
+            PRIMARY KEY(Video_id)
+        );
+
+
+        CREATE TABLE comments(
+            Comment_id VARCHAR(255),
+            Video_id VARCHAR(255),
+            Comment_text TEXT,
+            Comment_author TEXT,
+            Comment_posted_date TEXT,
+            PRIMARY KEY(Comment_id)
+        );
+        """)
+        cursor1.execute(commands)
+        mydb.commit()
 
     def migrate_data_to_channels():
-        mycoll = db["channel_details"]
+        mycoll = db['channel_details']
         query1 = """INSERT INTO channels(
                 Channel_id,
                 Channel_name,
@@ -226,7 +266,8 @@ if selected == "Migrate":
                 Total_videos,
                 Description) VALUES(%s,%s,%s,%s,%s,%s,%s)"""
 
-        for i in mycoll.find({"Channel_name": user_inp}, {'_id': 0}):
+        response = mycoll.find({"Channel_name": user_inp}, {'_id': 0})
+        for i in response:
             cursor1.execute(query1, tuple(i.values()))
             mydb.commit()
 
@@ -249,7 +290,8 @@ if selected == "Migrate":
                 Favorite_count,
                 Caption_status) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
 
-        for i in mycoll1.find({"Channel_name": user_inp}, {'_id': 0}):
+        response = mycoll1.find({"Channel_name": user_inp}, {'_id': 0})
+        for i in response:
             cursor1.execute(query2, tuple(i.values()))
             mydb.commit()
 
@@ -264,15 +306,18 @@ if selected == "Migrate":
                 Comment_author,
                 Comment_posted_date) VALUES(%s,%s,%s,%s,%s)"""
 
-        for vid in mycoll1.find({"Channel_name": user_inp}, {'_id': 0}):
-            for i in mycoll2.find({'Video_id': vid['Video_id']}, {'_id': 0}):
+        resp = mycoll1.find({"Channel_name": user_inp}, {'_id': 0})
+        for vid in resp:
+            subresponse = mycoll2.find({'Video_id': vid['Video_id']}, {'_id': 0})
+            for i in subresponse:
                 cursor1.execute(query3, tuple(i.values()))
-            mydb.commit()
+                mydb.commit()
 
 
     if st.button("Migrate Data to MySQL"):
         try:
             with st.spinner('Migrating....'):
+                create_psql_tables()
                 migrate_data_to_channels()
                 migrate_data_to_videos()
                 migrate_data_to_comments()
